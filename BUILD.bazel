@@ -1,12 +1,12 @@
 cc_library(
   name = "mcl-lib",
   srcs = [
-    "src/bn_c384.cpp",
-    "src/ecdsa_c.cpp",
     "src/fp.cpp",
     "src/gen.cpp",
+    "src/bls_c384.cpp",
   ],
   hdrs = [
+    "src/bls_c_impl.hpp",
     "src/bn_c_impl.hpp",
     "src/fp_generator.hpp",
     "src/llvm_gen.hpp",
@@ -17,6 +17,7 @@ cc_library(
     "src/xbyak/xbyak_mnemonic.h",
     "src/xbyak/xbyak_util.h",
     "src/xbyak/xbyak.h",
+    "src/qcoeff-bn254.hpp",
     "include/cybozu/array.hpp",
     "include/cybozu/atoi.hpp",
     "include/cybozu/benchmark.hpp",
@@ -44,6 +45,8 @@ cc_library(
     "include/mcl/ahe.hpp",
     "include/mcl/array.hpp", 
     "include/mcl/bls12_381.hpp", 
+    "include/mcl/bls.h",
+    "include/mcl/bls.hpp",
     "include/mcl/bn.h", 
     "include/mcl/bn.hpp", 
     "include/mcl/bn384.hpp", 
