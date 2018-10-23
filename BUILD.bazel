@@ -45,6 +45,7 @@ cc_library(
     "include/mcl/array.hpp", 
     "include/mcl/bls12_381.hpp", 
     "include/mcl/bn.h", 
+    "include/mcl/bn.hpp", 
     "include/mcl/bn384.hpp", 
     "include/mcl/conversion.hpp", 
     "include/mcl/curve_type.h", 
