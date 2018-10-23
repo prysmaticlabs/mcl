@@ -20,9 +20,9 @@
 	#define SHA384 CC_SHA384
 	#define SHA512 CC_SHA512
 #else
-#include "external/openssl/include/openssl/hmac.h"
-#include "external/openssl/include/openssl/evp.h"
-#include "external/openssl/include/openssl/sha.h"
+#include <openssl/hmac.h>
+#include <openssl/evp.h>
+#include <openssl/sha.h>
 #endif
 #ifdef _MSC_VER
 	#include <cybozu/link_libeay32.hpp>

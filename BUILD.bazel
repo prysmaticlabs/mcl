@@ -65,7 +65,6 @@ cc_library(
     "include/mcl/vint.hpp", 
     "include/mcl/window_method.hpp", 
   ],
-  deps = ["@openssl//:ssl", "@openssl//:crypto"],
   includes = ["include", "src/xbyak"],
   visibility = ["//visibility:public"],
 )
