@@ -4,6 +4,8 @@ cc_library(
     "src/fp.cpp",
     "src/gen.cpp",
     "src/bls_c384.cpp",
+    "lib/libbls384.a",
+    "lib/libbls384_dy.so",
   ],
   hdrs = [
     "src/bls_c_impl.hpp",
@@ -69,6 +71,6 @@ cc_library(
     "include/mcl/vint.hpp", 
     "include/mcl/window_method.hpp", 
   ],
-  includes = ["include", "src/xbyak"],
+  includes = ["include", "src/xbyak", "lib"],
   visibility = ["//visibility:public"],
 )
