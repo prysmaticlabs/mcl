@@ -120,14 +120,16 @@ bool isEnableJIT()
 #endif
 }
 
-void getRandVal(Unit *out, RandGen& rg, const Unit *in, size_t bitSize)
+void getRandVal(bool *pb, void *p, RandGen& rg, const Unit *in, size_t bitSize)
 {
 	if (rg.isZero()) rg = RandGen::get();
+	Unit *out = reinterpret_cast<Unit*>(p);
 	const size_t n = (bitSize + UnitBitSize - 1) / UnitBitSize;
 	const size_t rem = bitSize & (UnitBitSize - 1);
 	assert(n > 0);
 	for (;;) {
-		rg.read(out, n * sizeof(Unit));
+		rg.read(pb, out, n * sizeof(Unit)); // byte size
+		if (!*pb) return;
 		if (rem > 0) out[n - 1] &= (Unit(1) << rem) - 1;
 		if (isLessArray(out, in, n)) return;
 	}
@@ -497,18 +499,17 @@ bool Op::init(const mpz_class& _p, size_t maxBitSize, Mode mode, size_t mclMaxBi
 		fpDbl_mod = &mcl::vint::mcl_fpDbl_mod_SECP256K1;
 	}
 #endif
-	if (!fp::initForMont(*this, p, mode)) return false;
-	{
-		bool b;
-		sq.set(&b, mp);
-		if (!b) return false;
-	}
 	if (N * UnitBitSize <= 256) {
 		hash = sha256;
 	} else {
 		hash = sha512;
 	}
-	return true;
+	{
+		bool b;
+		sq.set(&b, mp);
+		if (!b) return false;
+	}
+	return fp::initForMont(*this, p, mode);
 }
 
 void copyUnitToByteAsLE(uint8_t *dst, const Unit *src, size_t byteSize)

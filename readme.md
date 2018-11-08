@@ -35,7 +35,44 @@ p(z) = 36z^4 + 36z^3 + 24z^2 + 6z + 1.
 
 # Benchmark
 
-A benchmark of a BN curve BN254(2016/12/25).
+## The latest benchmark(2018/11/7)
+
+### Intel Core i7-6700 3.4GHz(Skylake), Ubuntu 18.04.1 LTS
+
+curveType |              binary|clang-6.0.0|gcc-7.3.0|
+----------|--------------------|-----------|---------|
+BN254     |    bin/bn\_test.exe|    882Kclk|  933Kclk|
+BLS12-381 | bin/bls12\_test.exe|   2290Kclk| 2630Kclk|
+
+### Intel Core i7-7700 3.6GHz(Kaby Lake), Ubuntu 18.04.1 LTS on Windows 10 Vmware
+
+curveType |              binary|clang-6.0.0|gcc-7.3.0|
+----------|--------------------|-----------|---------|
+BN254     |    bin/bn\_test.exe|    900Kclk|  954Kclk|
+BLS12-381 | bin/bls12\_test.exe|   2340Kclk| 2680Kclk|
+
+* now investigating the reason why gcc is slower than clang.
+
+## Higher-bit BN curve benchmark
+
+For JavaScript(WebAssembly), see [ID based encryption demo](https://herumi.github.io/mcl-wasm/ibe-demo.html).
+
+paramter   |  x64| Firefox on x64|Safari on iPhone7|
+-----------|-----|---------------|-----------------|
+BN254      | 0.25|           2.48|             4.78|
+BN381\_1   | 0.95|           7.91|            11.74|
+BN462      | 2.16|          14.73|            22.77|
+
+* x64 : 'Kaby Lake Core i7-7700(3.6GHz)'.
+* Firefox : 64-bit version 58.
+* iPhone7 : iOS 11.2.1.
+* BN254 is by `test/bn_test.cpp`.
+* BN381\_1 and BN462 are  by `test/bn512_test.cpp`.
+* All the timings  are given in ms(milliseconds).
+
+The other benchmark results are [bench.txt](bench.txt).
+
+## An old benchmark of a BN curve BN254(2016/12/25).
 
 * x64, x86 ; Inte Core i7-6700 3.4GHz(Skylake) upto 4GHz on Ubuntu 16.04.
     * `sudo cpufreq-set -g performance`
@@ -55,24 +92,6 @@ mcl                                                      | 0.31 | 1.6 |22.6|  3.
 ```
 cmake -DARITH=x64-asm-254 -DFP_PRIME=254 -DFPX_METHD="INTEG;INTEG;LAZYR" -DPP_METHD="LAZYR;OATEP"
 ```
-## Higher-bit BN curve benchmark by mcl
-
-For JavaScript(WebAssembly), see [ID based encryption demo](https://herumi.github.io/mcl-wasm/ibe-demo.html).
-
-paramter   |  x64| Firefox on x64|Safari on iPhone7|
------------|-----|---------------|-----------------|
-BN254      | 0.29|           2.48|             4.78|
-BN381\_1   | 0.95|           7.91|            11.74|
-BN462      | 2.16|          14.73|            22.77|
-
-* x64 : 'Kaby Lake Core i7-7700(3.6GHz)'.
-* Firefox : 64-bit version 58.
-* iPhone7 : iOS 11.2.1.
-* BN254 is by `test/bn_test.cpp`.
-* BN381\_1 and BN462 are  by `test/bn512_test.cpp`.
-* All the timings  are given in ms(milliseconds).
-
-The other benchmark results are [bench.txt](bench.txt).
 
 # Installation Requirements
 
@@ -191,12 +210,44 @@ finalExp 546.259Kclk
 
 # Libraries
 
+* G1 and G2 is defined over Fp
+* The order of G1 and G2 is r.
+* Use `bn256.hpp` if only BN254 is used.
+
+## C++ library
+
 * libmcl.a ; static C++ library of mcl
 * libmcl\_dy.so ; shared C++ library of mcl
-* libbn256.a ; static C library for `mcl/bn256f.h`
-* libbn256\_dy.so ; shared C library
+* the default parameter of curveType is BN254
 
-If you want to remove '_dy` of so files, then `makeSHARE_BASENAME\_SUF=`.
+header        |support curveType        |sizeof Fr|sizeof Fp|
+--------------|-------------------------|---------|---------|
+bn256.hpp     |BN254                    |   32    |   32    |
+bls12_381.hpp |BLS12_381, BN254         |   32    |   48    |
+bn384.hpp     |BN381_1, BLS12_381, BN254|   48    |   48    |
+
+## C library
+
+* Define `MCLBN_FR_UNIT_SIZE` and `MCLBN_FP_UNIT_SIZE` and include bn.h
+* set `MCLBN_FR_UNIT_SIZE = MCLBN_FP_UNIT_SIZE` unless `MCLBN_FR_UNIT_SIZE` is defined
+
+library           |MCLBN_FR_UNIT_SIZE|MCLBN_FP_UNIT_SIZE|
+                  | sizeof Fr        |  sizeof Fp       |
+------------------|------------------|------------------|
+libmclbn256.a     |          4       |         4        |
+libmclbn384_256.a |          4       |         6        |
+libmclbn384.a     |          6       |         6        |
+
+* libmclbn*.a ; static C library
+* libmclbn*\_dy.so ; shared C library
+
+### 2nd argument of `mclBn_init`
+Specify `MCLBN_COMPILED_TIME_VAR` to 2nd argument of `mclBn_init`, which
+is defined as `MCLBN_FR_UNIT_SIZE * 10 + MCLBN_FP_UNIT_SIZE`.
+This parameter is used to make sure that the values are the same when the library is built and used.
+
+### shared library name
+If you want to remove `_dy` of so files, then `makeSHARE_BASENAME\_SUF=`.
 
 # How to initialize pairing library
 Call `mcl::bn256::initPairing` before calling any operations.
