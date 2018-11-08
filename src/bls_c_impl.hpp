@@ -1,7 +1,7 @@
 #define MCLBN_DONT_EXPORT
 #define BLS_DLL_EXPORT
 
-#include "bls.h"
+#include <mcl/bls.h>
 
 #include "bn_c_impl.hpp"
 
