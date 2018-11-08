@@ -1,7 +1,8 @@
 #define MCLBN_DONT_EXPORT
 #define BLS_DLL_EXPORT
 
-#include <mcl/bls.h>
+#include <bls/bls.h>
+
 #include "bn_c_impl.hpp"
 
 /*
@@ -391,6 +392,10 @@ int blsSecretKeySetByCSPRNG(blsSecretKey *sec)
 {
 	return mclBnFr_setByCSPRNG(&sec->v);
 }
+void blsSetRandFunc(void *self, unsigned int (*readFunc)(void *self, void *buf, unsigned int bufSize))
+{
+	return mclBn_setRandFunc(self, readFunc);
+}
 #endif
 
 void blsGetPop(blsSignature *sig, const blsSecretKey *sec)
@@ -457,3 +462,4 @@ void blsDHKeyExchange(blsPublicKey *out, const blsSecretKey *sec, const blsPubli
 }
 
 #endif
+
