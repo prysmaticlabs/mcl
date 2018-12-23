@@ -1,3 +1,9 @@
+exports_files([
+    "include/mcl/bls.h",
+    "include/mcl/bn.h",
+    "include/mcl/curve_type.h",
+])
+
 cc_library(
   name = "mcl-lib",
   srcs = [
