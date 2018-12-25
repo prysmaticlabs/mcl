@@ -28,7 +28,7 @@
 #include <mcl/vint.hpp>
 typedef mcl::Vint mpz_class;
 #else
-#include "external/gmp_6_1_2/gmpxx.h"
+#include <gmpxx.h>
 #ifdef _MSC_VER
 	#pragma warning(pop)
 	#include <cybozu/link_mpir.hpp>
