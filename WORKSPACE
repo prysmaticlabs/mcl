@@ -7,3 +7,15 @@ http_archive(
     strip_prefix = "gmp-6.1.2",
     url = "https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz",
 )
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
+    name = "io_bazel_rules_m4",
+    remote = "https://github.com/jmillikin/rules_m4",
+    commit = "31b46d929e0676c892481356a1a23c425db2b773",
+)
+
+load("@io_bazel_rules_m4//:m4.bzl", "m4_register_toolchains")
+
+m4_register_toolchains()

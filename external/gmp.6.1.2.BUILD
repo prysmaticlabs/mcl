@@ -2,17 +2,11 @@ exports_files([
     "gmpxx.h",
 ])
 
-genrule(
-    name = "gmp_hdrs",
-    srcs = glob(["**/*"]),
-    outs = [
-        "gmp.h",
-    ],
-    cmd = """
-        cd external/gmp_6_1_2
-        ./configure >/dev/null
-        cd ../..
-        cp external/gmp_6_1_2/gmp.h $(location gmp.h)
-    """,
+load("@io_bazel_rules_m4//:m4.bzl", "m4")
+
+m4(
+    name = "hdrs",
+    srcs = ["gmp-h.in"],
+    out = "gmp.h",
     visibility = ["//visibility:public"],
 )
