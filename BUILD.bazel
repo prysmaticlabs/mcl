@@ -85,7 +85,6 @@ cc_library(
     "include/mcl/vint.hpp",
     "include/mcl/window_method.hpp",
   ],
-  deps = ["@bazelify_gmp//:gmp"],
   includes = ["include", "src/xbyak", ] + select({
       ":gmp_win_select_dll": ["external/bazelify_gmp/gmp_6_1_2_win"],
       "//conditions:default": [],

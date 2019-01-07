@@ -6,7 +6,7 @@ git_repository(
     commit = "2bf69df77dfb6b3ba6b7fc95c304b0dc279375bc",
 )
 
-local_repository(
+git_repository(
     name = "bazelify_gmp",
     remote = "https://github.com/robin-thomas/bazelify-gmp",
     commit = "d5c10aea1c593f17fe118dbb25623ec6c372cdd3",
