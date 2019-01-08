@@ -9,7 +9,7 @@ git_repository(
 git_repository(
     name = "bazelify_gmp",
     remote = "https://github.com/robin-thomas/bazelify-gmp",
-    commit = "3b3a121dd83c673ed23492577954857e3ac8fd6a",
+    commit = "bb4881b35e6864c90493980d035e1d984cafd093",
 )
 
 load("@io_bazel_rules_m4//:m4.bzl", "m4_register_toolchains")
