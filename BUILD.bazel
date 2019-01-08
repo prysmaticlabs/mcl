@@ -19,7 +19,7 @@ cc_library(
     "src/bls_c384.cpp",
   ],
   hdrs = select({
-      ":gmp_win_select_dll": [],
+      "gmp_win_select_dll": ["@bazelify_gmp//gmp_6_1_2_win:gmp.h"],
       "//conditions:default": ["@bazelify_gmp//gmp_6_1_2:gmpxx.h"],
   }) + [
     "src/bls_c_impl.hpp",
@@ -86,8 +86,16 @@ cc_library(
     "include/mcl/window_method.hpp",
   ],
   includes = ["include", "src/xbyak", ] + select({
-      ":gmp_win_select_dll": ["external/bazelify_gmp/gmp_6_1_2_win"],
+      "gmp_win_select_dll": ["external/bazelify_gmp/gmp_6_1_2_win"],
       "//conditions:default": [],
+  }),
+  copts = select({
+      "gmp_win_select_dll": [],
+      "//conditions:default": ["-Iexternal/bazelify_gmp/gmp_6_1_2", "-I$(GENDIR)/external/bazelify_gmp/gmp_6_1_2"],
+  }),
+  deps = select({
+      "gmp_win_select_dll": [],
+      "//conditions:default": ["@bazelify_gmp//gmp_6_1_2:gmp_hdrs"],
   }),
   visibility = ["//visibility:public"],
 )
