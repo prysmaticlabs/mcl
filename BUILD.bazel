@@ -4,6 +4,13 @@ exports_files([
     "include/mcl/curve_type.h",
 ])
 
+config_setting(
+    name = "gmp_win_select_dll",
+    constraint_values = [
+        "@bazel_tools//platforms:windows",
+    ],
+)
+
 cc_library(
   name = "mcl-lib",
   srcs = [
@@ -11,9 +18,10 @@ cc_library(
     "src/gen.cpp",
     "src/bls_c384.cpp",
   ],
-  hdrs = [
-    "@gmp_6_1_2//:gmpxx.h",
-    "@gmp_6_1_2//:gmp.h",
+  hdrs = select({
+      "gmp_win_select_dll": ["@bazelify_gmp//gmp_6_1_2_win:gmp.h"],
+      "//conditions:default": ["@bazelify_gmp//gmp_6_1_2:gmpxx.h"],
+  }) + [
     "src/bls_c_impl.hpp",
     "src/bn_c_impl.hpp",
     "src/fp_generator.hpp",
@@ -77,7 +85,17 @@ cc_library(
     "include/mcl/vint.hpp",
     "include/mcl/window_method.hpp",
   ],
-  includes = ["include", "src/xbyak"],
-  copts = ["-I.", "-I$(GENDIR)/external/gmp_6_1_2"],
+  includes = ["include", "src/xbyak", ] + select({
+      "gmp_win_select_dll": ["external/bazelify_gmp/gmp_6_1_2_win"],
+      "//conditions:default": [],
+  }),
+  copts = select({
+      "gmp_win_select_dll": [],
+      "//conditions:default": ["-Iexternal/bazelify_gmp/gmp_6_1_2", "-I$(GENDIR)/external/bazelify_gmp/gmp_6_1_2"],
+  }),
+  deps = select({
+      "gmp_win_select_dll": [],
+      "//conditions:default": ["@bazelify_gmp//gmp_6_1_2:gmp_hdrs"],
+  }),
   visibility = ["//visibility:public"],
 )
