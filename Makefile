@@ -26,15 +26,14 @@ endif
 ifeq ($(MCL_USE_XBYAK),0)
   CFLAGS+=-DMCL_DONT_USE_XBYAK
 endif
-SHARE_BASENAME_SUF?=_dy
 ##################################################################
 MCL_LIB=$(LIB_DIR)/libmcl.a
-MCL_SNAME=mcl$(SHARE_BASENAME_SUF)
-BN256_SNAME=mclbn256$(SHARE_BASENAME_SUF)
-BN384_SNAME=mclbn384$(SHARE_BASENAME_SUF)
-BN384_256_SNAME=mclbn384_256$(SHARE_BASENAME_SUF)
-BN512_SNAME=mclbn512$(SHARE_BASENAME_SUF)
-SHE256_SNAME=mclshe256$(SHARE_BASENAME_SUF)
+MCL_SNAME=mcl
+BN256_SNAME=mclbn256
+BN384_SNAME=mclbn384
+BN384_256_SNAME=mclbn384_256
+BN512_SNAME=mclbn512
+SHE256_SNAME=mclshe256
 MCL_SLIB=$(LIB_DIR)/lib$(MCL_SNAME).$(LIB_SUF)
 BN256_LIB=$(LIB_DIR)/libmclbn256.a
 BN256_SLIB=$(LIB_DIR)/lib$(BN256_SNAME).$(LIB_SUF)
@@ -199,7 +198,7 @@ else
 endif
 
 $(GEN_EXE): src/gen.cpp src/llvm_gen.hpp
-	$(CXX) -o $@ $< $(CFLAGS) -O0
+	$(CXX) -o $@ $< $(CFLAGS)
 
 asm: $(LLVM_SRC)
 	$(LLVM_OPT) -O3 -o - $(LLVM_SRC) | $(LLVM_LLC) -O3 $(LLVM_FLAGS) -x86-asm-syntax=intel
@@ -207,21 +206,22 @@ asm: $(LLVM_SRC)
 $(LOW_ASM_OBJ): $(LOW_ASM_SRC)
 	$(ASM) $<
 
-ifeq ($(OS),mac)
-  MAC_GO_LDFLAGS="-ldflags=-s"
-endif
-# set PATH for mingw, set LD_RUN_PATH is for other env
+# set PATH for mingw, set LD_LIBRARY_PATH is for other env
+COMMON_LIB_PATH="../../../lib"
+PATH_VAL=$$PATH:$(COMMON_LIB_PATH) LD_LIBRARY_PATH=$(COMMON_LIB_PATH) DYLD_LIBRARY_PATH=$(COMMON_LIB_PATH) CGO_CFLAGS="-I$(shell pwd)/include" CGO_LDFLAGS="-L../../../lib"
 test_go256: $(MCL_SLIB) $(BN256_SLIB)
-#	cd ffi/go/mcl && env PATH="$$PATH:../../../lib" LD_RUN_PATH="../../../lib" CGO_LDFLAGS="-L../../../lib -l$(BN256_SNAME) -l$(MCL_SNAME) -lgmpxx -lgmp -lcrypto -lstdc++" go test $(MAC_GO_LDFLAGS) -tags bn256 .
-	cd ffi/go/mcl && env PATH="$$PATH:../../../lib" LD_RUN_PATH="../../../lib" go test $(MAC_GO_LDFLAGS) -tags bn256 .
+	cd ffi/go/mcl && env PATH=$(PATH_VAL) go test -tags bn256 .
 
 test_go384: $(MCL_SLIB) $(BN384_SLIB)
-#	cd ffi/go/mcl && env LD_RUN_PATH="../../../lib" CGO_CFLAGS="-I../../../include" CGO_LDFLAGS="-L../../../lib -l$(BN384_SNAME) -l$(MCL_SNAME) -lgmpxx -lgmp -lcrypto -lstdc++" go test $(MAC_GO_LDFLAGS) .
-	cd ffi/go/mcl && env PATH="$$PATH:../../../lib" LD_RUN_PATH="../../../lib" go test $(MAC_GO_LDFLAGS) -tags bn384 .
+	cd ffi/go/mcl && env PATH=$(PATH_VAL) go test -tags bn384 .
+
+test_go384_256: $(MCL_SLIB) $(BN384_256_SLIB)
+	cd ffi/go/mcl && env PATH=$(PATH_VAL) go test -tags bn384_256 .
 
 test_go:
 	$(MAKE) test_go256
 	$(MAKE) test_go384
+	$(MAKE) test_go384_256
 
 test_java:
 	$(MAKE) -C ffi/java test
@@ -282,7 +282,7 @@ EMCC_OPT+=-s WASM=1 -s NO_EXIT_RUNTIME=1 -s MODULARIZE=1 #-s ASSERTIONS=1
 EMCC_OPT+=-DCYBOZU_MINIMUM_EXCEPTION
 EMCC_OPT+=-s ABORTING_MALLOC=0
 SHE_C_DEP=src/fp.cpp src/she_c_impl.hpp include/mcl/she.hpp include/mcl/fp.hpp include/mcl/op.hpp include/mcl/she.h Makefile
-MCL_C_DEP=src/fp.cpp src/bn_c_impl.hpp include/mcl/bn.hpp include/mcl/fp.hpp include/mcl/op.hpp include/mcl/bn.h Makefile
+MCL_C_DEP=src/fp.cpp include/mcl/impl/bn_c_impl.hpp include/mcl/bn.hpp include/mcl/fp.hpp include/mcl/op.hpp include/mcl/bn.h Makefile
 ifeq ($(MCL_USE_LLVM),2)
   EMCC_OPT+=src/base64m.ll -DMCL_USE_LLVM
   SHE_C_DEP+=src/base64m.ll
@@ -334,19 +334,19 @@ update_cybozulib:
 	cp -a $(addprefix ../cybozulib/,$(wildcard include/cybozu/*.hpp)) include/cybozu/
 
 clean:
-	$(RM) $(LIB_DIR)/*.a $(EXE_DIR)/*.$(LIB_SUF) $(OBJ_DIR)/*.o $(OBJ_DIR)/*.d $(EXE_DIR)/*.exe $(GEN_EXE) $(ASM_OBJ) $(LIB_OBJ) $(BN256_OBJ) $(BN384_OBJ) $(BN512_OBJ) $(LLVM_SRC) $(FUNC_LIST) src/*.ll lib/*.a
+	$(RM) $(LIB_DIR)/*.a $(LIB_DIR)/*.$(LIB_SUF) $(OBJ_DIR)/*.o $(OBJ_DIR)/*.obj $(OBJ_DIR)/*.d $(EXE_DIR)/*.exe $(GEN_EXE) $(ASM_OBJ) $(LIB_OBJ) $(BN256_OBJ) $(BN384_OBJ) $(BN512_OBJ) $(LLVM_SRC) $(FUNC_LIST) src/*.ll lib/*.a
 
 ALL_SRC=$(SRC_SRC) $(TEST_SRC) $(SAMPLE_SRC)
 DEPEND_FILE=$(addprefix $(OBJ_DIR)/, $(addsuffix .d,$(basename $(ALL_SRC))))
 -include $(DEPEND_FILE)
 
 PREFIX?=/usr/local
-install: lib/libmcl.a lib/libmcl$(SHARE_BASENAME_SUF).$(LIB_SUF)
+install: lib/libmcl.a lib/libmcl.$(LIB_SUF)
 	$(MKDIR) $(PREFIX)/include/mcl
 	cp -a include/mcl/ $(PREFIX)/include/
 	cp -a include/cybozu/ $(PREFIX)/include/
 	$(MKDIR) $(PREFIX)/lib
-	cp -a lib/libmcl.a lib/libmcl$(SHARE_BASENAME_SUF).$(LIB_SUF) $(PREFIX)/lib/
+	cp -a lib/libmcl.a lib/libmcl.$(LIB_SUF) $(PREFIX)/lib/
 
 .PHONY: test mcl-wasm she-wasm bin/emu
 

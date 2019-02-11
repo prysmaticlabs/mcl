@@ -3,7 +3,7 @@
 
 #include <mcl/bls.h>
 
-#include "bn_c_impl.hpp"
+#include "mcl/impl/bn_c_impl.hpp"
 
 /*
 	BLS signature

@@ -23,7 +23,6 @@ cc_library(
       "//conditions:default": ["@bazelify_gmp//gmp_6_1_2:gmpxx.h"],
   }) + [
     "src/bls_c_impl.hpp",
-    "src/bn_c_impl.hpp",
     "src/fp_generator.hpp",
     "src/llvm_gen.hpp",
     "src/low_func_llvm.hpp",
@@ -65,6 +64,7 @@ cc_library(
     "include/mcl/bls.hpp",
     "include/mcl/bn.h",
     "include/mcl/bn.hpp",
+    "include/mcl/impl/bn_c_impl.hpp",
     "include/mcl/bn384.hpp",
     "include/mcl/conversion.hpp",
     "include/mcl/curve_type.h",

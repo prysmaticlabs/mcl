@@ -85,18 +85,20 @@ include_directories(
 )
 
 add_library(mcl STATIC ${SRCS})
-if(NOT MSVC)
 add_library(mcl_dy SHARED ${SRCS})
-endif()
+target_link_libraries(mcl_dy ${LIBS})
+set_target_properties(mcl_dy PROPERTIES OUTPUT_NAME mcl)
+#set_target_properties(mcl_dy PROPERTIES OUTPUT_NAME mcl VERSION 1.0.0 SOVERSION 1)
+# For semantics of ABI compatibility including when you must bump SOVERSION, see:
+# https://community.kde.org/Policies/Binary_Compatibility_Issues_With_C%2B%2B#The_Do.27s_and_Don.27ts
 
 file(GLOB MCL_HEADERS include/mcl/*.hpp include/mcl/bn.h include/mcl/curve_type.h)
 file(GLOB CYBOZULIB_HEADERS include/cybozu/*.hpp)
 
 install(TARGETS mcl DESTINATION lib)
-if(NOT MSVC)
 install(TARGETS mcl_dy DESTINATION lib)
-endif()
 install(FILES ${MCL_HEADERS} DESTINATION include/mcl)
+install(FILES include/mcl/impl/bn_c_impl.hpp DESTINATION include/mcl/impl)
 install(FILES ${CYBOZULIB_HEADERS} DESTINATION include/cybozu)
 
 set(TEST_BASE fp_test ec_test fp_util_test window_method_test elgamal_test fp_tower_test gmp_test bn_test glv_test)

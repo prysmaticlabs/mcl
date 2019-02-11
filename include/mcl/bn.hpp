@@ -1043,12 +1043,12 @@ struct Param {
 			assert((p % 6) == 1);
 			r = local::evalPoly(z, rCoff);
 		}
-		Fp::init(pb, p, mode);
-		if (!*pb) return;
 		Fr::init(pb, r, mode);
 		if (!*pb) return;
-		Fp2::init(cp.xi_a);
-		Fp2 xi(cp.xi_a, 1);
+		Fp::init(pb, cp.xi_a, p, mode);
+		if (!*pb) return;
+		Fp2::init();
+		const Fp2 xi(cp.xi_a, 1);
 		g2 = Fp2::get_gTbl()[0];
 		g3 = Fp2::get_gTbl()[3];
 		if (cp.isMtype) {
@@ -1564,17 +1564,22 @@ inline void mulSparse(Fp12& z, const Fp6& x)
 }
 inline void convertFp6toFp12(Fp12& y, const Fp6& x)
 {
-	y.clear();
 	if (BN::param.cp.isMtype) {
 		// (a, b, c) -> (a, c, 0, 0, b, 0)
 		y.a.a = x.a;
 		y.b.b = x.b;
 		y.a.b = x.c;
+		y.a.c.clear();
+		y.b.a.clear();
+		y.b.c.clear();
 	} else {
 		// (a, b, c) -> (b, 0, 0, c, a, 0)
 		y.b.b = x.a;
 		y.a.a = x.b;
 		y.b.a = x.c;
+		y.a.b.clear();
+		y.a.c.clear();
+		y.b.c.clear();
 	}
 }
 inline void mulSparse2(Fp12& z, const Fp6& x, const Fp6& y)
