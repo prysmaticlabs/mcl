@@ -98,4 +98,6 @@ cc_library(
       "//conditions:default": ["@bazelify_gmp//gmp_6_1_2:gmp_hdrs"],
   }),
   visibility = ["//visibility:public"],
+  linkstatic = True,
+  features = ["fully_static_link"],
 )
